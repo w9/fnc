@@ -1,7 +1,7 @@
 Filename Changer
 ================
 
-Changing filenames is so laboring in Bash. Don't you sometimes just want to
+Changing filenames is so laboring in Bash. Don't you sometimes just wish to
 open your favorite powerful editor (*read: VIM*) on the list of filenames
 in the current directory and do whatever change you want and in the end the filenames
 will just magically change as you wish?
