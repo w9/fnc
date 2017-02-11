@@ -22,6 +22,7 @@ library
                      , process
                      , filepath
                      , ansi-terminal
+                     , random
   default-language:    Haskell2010
 
 executable fnc

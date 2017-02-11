@@ -4,11 +4,14 @@ module Lib
 
 import System.Console.ANSI
 import System.Environment
-import System.Directory
+import System.Directory hiding (createDirectory, removeDirectory)
 import System.Posix.Files
+import System.Posix.Directory
 import System.FilePath.Posix
 import System.Exit
 import System.Process
+import System.Random
+import Data.Bool
 import Data.List
 import Data.Maybe
 import Data.Char
@@ -35,10 +38,10 @@ getOldFns f = do
 
 cmdLine :: IO ()
 cmdLine = do
-  tmpDir <- getTemporaryDirectory
+  globalTmpDir <- getTemporaryDirectory
   oldFns <- getOldFns "."
   let tempFileContent = unlines oldFns
-  let tempFile = tmpDir </> "FNC"
+  let tempFile = globalTmpDir </> "FNC"
   writeFile tempFile tempFileContent
   mEditor <- lookupEnv "EDITOR"
   editor <- maybe (die "The environment variable $EDITOR is not set.") return mEditor
@@ -65,9 +68,25 @@ cmdLine = do
      then return ()
      else die "No change was made."
 
-  mapM_ (uncurry rename) diff
+  tmpDir <- randomWord randomASCII 12
+  createDirectory tmpDir 0o777
+
+  mapM_ (\(a, b) -> rename a (tmpDir </> b)) diff
+  mapM_ (\(a, b) -> rename (tmpDir </> b) b) diff
+
+  removeDirectory tmpDir
 
   putStrLn $ show (length diff) ++ " file(s) or directory(ies) have been renamed."
+
+
+randomASCII :: IO Char
+randomASCII = getStdRandom $ randomR (chr 0,chr 127)
+
+onlyWith :: (Char -> Bool) -> IO Char -> IO Char
+onlyWith p gen = gen >>= \c -> if p c then return c else onlyWith p gen
+
+randomWord :: IO Char -> Int -> IO String
+randomWord gen len = replicateM len $ onlyWith isAlphaNum gen
 
   
 formatDiff :: (String, String) -> String
