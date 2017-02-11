@@ -55,6 +55,7 @@ cmdLine = do
   if length diff == 0 then die "No change was found." else return ()
 
   putStrLn "The changes are:"
+  putStrLn ""
   putStrLn . unlines $ map formatDiff diff
   putStrLn ""
   putStrLn "Would you like to make these changes? (y/n)"
@@ -65,6 +66,8 @@ cmdLine = do
      else die "No change was made."
 
   mapM_ (uncurry rename) diff
+
+  putStrLn $ show (length diff) ++ " file(s) or directory(ies) have been renamed."
 
   
 formatDiff :: (String, String) -> String
